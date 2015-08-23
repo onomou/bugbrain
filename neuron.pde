@@ -1,6 +1,7 @@
 class Neuron {
   float c = 0.01; //learning constant
   float threshold = 100, sum = 0;
+  int r = 70;
   PVector position;
   ArrayList<Connection> nextNeurons;
   boolean fired = false;
@@ -11,9 +12,9 @@ class Neuron {
   }
   void display() {
     stroke(0);
-    for (Connection n : nextNeurons) {
-      line(this.position, n.target.position);
-    }
+    //for (Connection n : nextNeurons) {
+    //  line(this.position, n.target.position);
+    //}
     stroke(map(threshold, -100, 100, 0, 255));
     if (fired) {
       fill(255, 0, 0);
@@ -21,7 +22,7 @@ class Neuron {
     } else {
       fill(map(sum, 0, threshold, 0, 255));
     }
-    circle(position, 60);
+    circle(position, r);
     fill(0);
     text(sum, position.x+10, position.y);
 
@@ -29,17 +30,10 @@ class Neuron {
       lineArrow(this.position, n.target.position);
     }
   }
-  //void connect(Neuron n) {
-  //  Connection c = new Connection(this, n, 100, 1);
-  //  nextNeurons.add(c);
-  //}
   void connect(Neuron n, float s) {
     Connection c = new Connection(this, n, s, 1);
     nextNeurons.add(c);
   }
-  //void feed(Input input) {
-  //  sum += input.value * input.weight;
-  //}
   void feed(float v, float w) {
     sum += v * w;
   }
