@@ -1,11 +1,18 @@
 void circle(PVector p, float r) {
   ellipse(p.x, p.y, r, r);
 }
+void circle(float x, float y, float r) {
+  ellipse(x, y, r, r);
+}
+void rect(PVector p, float w, float h) {
+  rect(p.x, p.y, w, h);
+}
 void line(PVector p, PVector q) {
   line(p.x,p.y,q.x,q.y);
 }
 void lineArrow(PVector p, PVector q) {
-  stroke(0);
+  //stroke(0);
+  //circle((p.x+q.x)/2,(p.y+q.y)/2,10);
   PVector l = PVector.sub(q,p);
   //line(p,q);
   pushMatrix();
@@ -13,9 +20,9 @@ void lineArrow(PVector p, PVector q) {
   line(0,0,-l.x,-l.y);
   rotate(l.heading()+HALF_PI);
   rotate(PI/8);
-  line(0,0,0,0.1*l.mag());
+  line(0,0,0,12);//0.1*l.mag());
   rotate(-PI/4);
-  line(0,0,0,0.1*l.mag());
+  line(0,0,0,12);//0.1*l.mag());
   popMatrix();
 }
 
@@ -66,6 +73,17 @@ float squareWave(int period) {
   return floor(millis()/(1000*period))%2;
 }
 
-float sineWave(float period) {
-  return 0.5*(sin(TAU*millis()/(1000*period))+1);//0.5*(sin(mil/4000)+1);
+float sineWave(float period, float phase) {
+  return 0.5*(sin(TAU*millis()/(1000*period)+phase)+1);//0.5*(sin(mil/4000)+1);
+}
+
+void setThreshold( Neuron n ) {
+  disableInput = true;
+  pushStyle();
+  strokeWeight(10);
+  stroke(0,100);
+  n.display();
+  popStyle();
+  rect(100,100,500,500);
+  text("Please type your value and press enter",300,150);
 }
