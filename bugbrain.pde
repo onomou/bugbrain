@@ -1,6 +1,6 @@
-class neuronCollection {
+class NeuronCollection {
   ArrayList<Neuron> neurons;
-  neuronCollection() {
+  NeuronCollection() {
     neurons = new ArrayList<Neuron>();
   }
   void add(Neuron n) {
@@ -9,11 +9,34 @@ class neuronCollection {
   void add(PVector p) {
     if( isNear(p) ) {
       p.add(70 + 10, 0); // TODO: change hard-coded number to refer to neuron's default size
-      this.add(p); // recursive, keep going right until empty space
+      this.add(p);       // recursive, keep going right until empty space
+    } else {
+      this.add(new Neuron(50, p));
     }
-    neurons.add(new Neuron(50, p));
   }
-  boolean isNear(PVector p) { // may not work because two neurons' radii could collide?
+  void remove(PVector p) { // TODO: this will be problematic - need to destroy neuron and associated connections
+    for( int i = 0; i < neurons.size(); i++ ) {
+      if( neurons.get(i).isNear(p) ) {
+        //neurons.get(i).
+        neurons.remove(i);
+        break;
+      }
+    }
+  }
+  void run() {
+    for (int i = 0; i < neurons.size (); i++) {
+      //Neuron n = neurons.get(i); // TODO: is this more efficient?
+      //n.fire();                  // why does it have to do display before fire?
+      neurons.get(i).display();
+      neurons.get(i).fire();
+    }
+  }
+  void feed(int whichone, float value, float weight) {
+    if( whichone < neurons.size() ) {
+      neurons.get(whichone).feed(value, weight);
+    }
+  }
+  boolean isNear(PVector p) { // TODO: may not work because two neurons' radii could collide?
     for( Neuron n : neurons ) {
       if( n.isNear(p) ) {
         return true;
@@ -21,6 +44,7 @@ class neuronCollection {
     }
     return false;
   }
+  /*
   Neuron getNear(PVector p) { // BUG: does not return *nearest* neuron
     for( Neuron n : neurons ) {
       if( n.isNear(p) ) {
@@ -29,10 +53,14 @@ class neuronCollection {
     }
     return null; // bad choice, should always call isNear() first
   }
+  */
+  Neuron getNearest(PVector pos) {
+    return findNearest(pos, neurons);
+  }
 }
 
-
-ArrayList<Neuron> neurons;
+//ArrayList<Neuron> neurons;
+NeuronCollection neurons;
 ArrayList<Tracker> outputs;
 ArrayList<Connection> connections;
 Tracker inputTrack;
@@ -43,9 +71,10 @@ Button addNeuronButton, interactModeButton; // interact mode: active = adding ne
 
 void setup() {
   size(1000,1000);
-  frameRate(30);
+  frameRate(20);
   vposition = height + 20;
-  neurons = new ArrayList<Neuron>();
+  //neurons = new ArrayList<Neuron>();
+  neurons = new NeuronCollection();
   neurons.add(new Neuron(50, new PVector(width/3, height/2)));
   neurons.add(new Neuron(100,new PVector(width/2, height/2)));
   neurons.add(new Neuron(50, new PVector(width/2, height/4)));
@@ -67,8 +96,7 @@ int nextHeight() {
   return vposition;
 }
 
-int omouseX, omouseY;
-int mode = 0; //modes available: 0 viewing, 1 connecting, 2 modify neuron threshold, 3 modify synapse weight 
+//int mode = 0; //modes available: 0 viewing, 1 connecting, 2 modify neuron threshold, 3 modify synapse weight 
 boolean mouseChanged = false, pmousePressed = false, connecting = false, pressedNeuron = false, active = false;
 boolean objectClicked = false, disableInput = false, changingNeuronThreshold = false, changingConnectionWeight = false;
 Neuron oNeuron;
@@ -115,16 +143,18 @@ void draw() {
   if (mouseChanged && !disableInput && !changingNeuronThreshold && !changingConnectionWeight ) {//mouse state changed
     if (mousePressed) {//pressed mouse
       //TODO: make this neater
-      oMouse = mouse;
-      float neuronDistance = 10000, connectionDistance = 10000;
-      boolean nearNeuron = false, nearConnection = false;
-      Neuron nearestNeuron = findNearest(mouse, neurons);
-      if( nearestNeuron != null ) {
+      //TODO: add functions for right mouse button, including delete and move neuron
+      oMouse = mouse.get();
+      float neuronDistance = 10000, connectionDistance = 10000; // surely *something* will be closer than this...
+      boolean nearNeuron = false, nearConnection = false; // default to not near anything
+      //Neuron nearestNeuron = findNearest(mouse, neurons); // get neuron closest to mouse
+      Neuron nearestNeuron = neurons.getNearest(mouse);
+      if( nearestNeuron != null ) { // check to make sure a neuron exists
         neuronDistance = distSq(mouse, nearestNeuron);
         nearNeuron = nearestNeuron.isNear(mouse);
       }
-      Connection nearestConnection = findNearest(mouse, connections, 1);
-      if( nearestConnection != null ) {
+      Connection nearestConnection = findNearest(mouse, connections, 1); // get connection closest to mouse
+      if( nearestConnection != null ) { // check to make sure a connection exists
         connectionDistance = distSq(mouse, nearestConnection);
         nearConnection = nearestConnection.isNear(mouse);
       }
@@ -139,14 +169,15 @@ void draw() {
       }
     } else {//released mouse
       if( objectClicked && clickedObject.equals("Neuron") ) {
-        Neuron closestNeuron = findNearest(mouse, neurons);
+        //Neuron closestNeuron = findNearest(mouse, neurons);
+        Neuron closestNeuron = neurons.getNearest(mouse);
         if( closestNeuron.isNear(mouse) ) {
           if( closestNeuron.id == oNeuron.id ) {                // mouse released on same neuron
             // call dialog to set threshold
             changingNeuronThreshold = true;
             //setThreshold(oNeuron);
           } else {                                              // connect to other neuron
-            oNeuron.connect(closestNeuron, 50);
+            oNeuron.connect(closestNeuron, 50, mouseTrace.get(mouseTrace.size()/2));
           }
         }
       } else if( objectClicked && clickedObject.equals("Connection") ) {
@@ -206,18 +237,26 @@ void draw() {
     curveVertex(p.x, p.y); // POSSIBLE BUG: may not work if p.size() < 4?
   }
   endShape();
+  fill(0,100);
+  if( mouseTrace.size() > 0 ) {
+    circle(mouseTrace.get(mouseTrace.size()/2),20);
+  }
 
   stroke(0);
   float v = sineWave(2,0);
   //inputTrack.feed(v);//does not translate to accurate time on horizontal axis
-  neurons.get(4).feed(100*v,100);
+  //neurons.get(4).feed(100*v,100);
+  neurons.feed(4,100*v,100);
   //neurons.get(3).feed(100*v, 0.5);
+  /*
   for (int i = 0; i < neurons.size (); i++) {
     Neuron n = neurons.get(i);
     //n.fire();//why?
     n.display();
     n.fire();
   }
+  */
+  neurons.run();
   addNeuronButton.rollOver(mouse);
   addNeuronButton.display();
   interactModeButton.rollOver(mouse);
@@ -244,7 +283,11 @@ class Button extends PositionalThing {
     if(active) {
       fill(100,100,0,200);
     } else {
-      fill(100,100,map(currentMode,0,modes-1,0,255),100);
+      if( modes <= 1 ) {
+        fill(100,100,0,100);
+      } else {
+        fill(100,100,map(currentMode,0,modes-1,0,255),100);
+      }
     }
     rect(position, size, size);
   }

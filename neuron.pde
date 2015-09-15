@@ -63,6 +63,11 @@ class Neuron extends PositionalThing {
     Connection c = new Connection(this, n, s, 100);//default connection weight 100
     nextNeurons.add(c);
   }
+  void connect(Neuron n, float s, PVector position) {
+    Connection c = new Connection(this, n, s, 100);//default connection weight 100
+    c.position = position.get();
+    nextNeurons.add(c);
+  }
   void feed(float v, float w) {
     sum += v * w / 100;
   }

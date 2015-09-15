@@ -1,5 +1,5 @@
 void addNeuron() {
-  neurons.add(new Neuron(50, new PVector(width/2, height/2)));
+  neurons.add(new PVector(width/2, height/2));
 }
 
 boolean isNear(PVector pos, PositionalThing p) {

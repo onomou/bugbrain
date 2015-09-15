@@ -1,17 +1,23 @@
 void mouseClicked() {
 
   mouse.set(mouseX, mouseY);
-  if( changingNeuronThreshold ) {
-    oNeuron.setThreshold(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
-    changingNeuronThreshold = false;
-  } else if( changingConnectionWeight ) {
-    oConnection.setWeight(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
-    changingConnectionWeight = false;
-  } else if( addNeuronButton.isNear(mouse) ) {
-    addNeuronButton.click();
-    addNeuron();
-  } else if( interactModeButton.isNear(mouse) ) {
-    interactModeButton.click();
+  if( mouseButton == LEFT ) {
+    if( changingNeuronThreshold ) {
+      oNeuron.setThreshold(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
+      changingNeuronThreshold = false;
+    } else if( changingConnectionWeight ) {
+      oConnection.setWeight(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
+      changingConnectionWeight = false;
+    } else if( addNeuronButton.isNear(mouse) ) {
+      addNeuronButton.click();
+      addNeuron();
+    } else if( interactModeButton.isNear(mouse) ) {
+      interactModeButton.click();
+    }
+  } else if( mouseButton == RIGHT ) {
+    if( changingNeuronThreshold ) { // right clicked on neuron TODO: should use a more generic name
+      neurons.remove(oMouse);
+    }
   }
 }
 
