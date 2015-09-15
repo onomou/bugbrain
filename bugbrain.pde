@@ -1,3 +1,36 @@
+class neuronCollection {
+  ArrayList<Neuron> neurons;
+  neuronCollection() {
+    neurons = new ArrayList<Neuron>();
+  }
+  void add(Neuron n) {
+    neurons.add(n);
+  }
+  void add(PVector p) {
+    if( isNear(p) ) {
+      p.add(70 + 10, 0); // TODO: change hard-coded number to refer to neuron's default size
+      this.add(p); // recursive, keep going right until empty space
+    }
+    neurons.add(new Neuron(50, p));
+  }
+  boolean isNear(PVector p) { // may not work because two neurons' radii could collide?
+    for( Neuron n : neurons ) {
+      if( n.isNear(p) ) {
+        return true;
+      }
+    }
+    return false;
+  }
+  Neuron getNear(PVector p) { // BUG: does not return *nearest* neuron
+    for( Neuron n : neurons ) {
+      if( n.isNear(p) ) {
+        return n;
+      }
+    }
+    return null; // bad choice, should always call isNear() first
+  }
+}
+
 
 ArrayList<Neuron> neurons;
 ArrayList<Tracker> outputs;
@@ -6,18 +39,18 @@ Tracker inputTrack;
 Periodic pfire = new Periodic(0.5);
 int count = 0, vposition;
 //float[] inHistory, outHistory;
-Button addNeuron, interactMode; // interact mode: active = adding new connection, not actuve = moving neuron
+Button addNeuronButton, interactModeButton; // interact mode: active = adding new connection, not active = moving neuron
 
 void setup() {
   size(1000,1000);
   frameRate(30);
   vposition = height + 20;
   neurons = new ArrayList<Neuron>();
-  neurons.add(new Neuron(50, width/3, height/2));
-  neurons.add(new Neuron(100, width/2, height/2));
-  neurons.add(new Neuron(50, width/2, height/4));
-  neurons.add(new Neuron(100, width/4, 3*height/4));
-  neurons.add(new VariableOutput(100, width/4, height/4));
+  neurons.add(new Neuron(50, new PVector(width/3, height/2)));
+  neurons.add(new Neuron(100,new PVector(width/2, height/2)));
+  neurons.add(new Neuron(50, new PVector(width/2, height/4)));
+  neurons.add(new Neuron(100,new PVector(width/4, 3*height/4)));
+  neurons.add(new VariableOutput(100, new PVector(width/4, height/4)));
   outputs = new ArrayList<Tracker>();
   outputs.add(new Tracker(height-140));
   outputs.add(new Tracker(height-100));
@@ -25,8 +58,8 @@ void setup() {
   outputs.add(new Tracker(height-20));
   inputTrack = new Tracker(60);
   connections = new ArrayList<Connection>();
-  addNeuron = new Button(20, 60);
-  interactMode = new Button(20, 80);
+  addNeuronButton = new Button(new PVector(20, 60));
+  interactModeButton = new Button(new PVector(20, 120), 2);
 }
 
 int nextHeight() {
@@ -76,8 +109,8 @@ void draw() {
   Buttons section
   */
   // BUG: will cause problems if buttons overlap
-  addNeuron.active = addNeuron.isNear(mouse);
-  interactMode.active = addNeuron.isNear(mouse);
+  addNeuronButton.active = addNeuronButton.isNear(mouse);
+  interactModeButton.active = addNeuronButton.isNear(mouse);
   
   if (mouseChanged && !disableInput && !changingNeuronThreshold && !changingConnectionWeight ) {//mouse state changed
     if (mousePressed) {//pressed mouse
@@ -185,20 +218,33 @@ void draw() {
     n.display();
     n.fire();
   }
+  addNeuronButton.rollOver(mouse);
+  addNeuronButton.display();
+  interactModeButton.rollOver(mouse);
+  interactModeButton.display();
   text(clickedObject, 10, 15);
 }
 
 class Button extends PositionalThing {
   boolean active = false;
-  Button(float x, float y) {
-    super(x, y);
-    size = 15;
+  int modes, currentMode;
+  Button(PVector p) {
+    super(p);
+    size = 50;
+    modes = 1;
+    currentMode = 0;
+  }
+  Button(PVector p, int modes) {
+    super(p);
+    size = 50;
+    this.modes = modes;
+    currentMode = 0;
   }
   void display() {
     if(active) {
       fill(100,100,0,200);
     } else {
-      fill(100,100,0,100);
+      fill(100,100,map(currentMode,0,modes-1,0,255),100);
     }
     rect(position, size, size);
   }
@@ -209,6 +255,17 @@ class Button extends PositionalThing {
       return false;
     }
   }
+  void rollOver(PVector p) {
+    if( this.isNear(p) ) {
+      active = true;
+    } else {
+      active = false;
+    }
+  }
+  void click() {
+    currentMode++;
+    currentMode %= modes;
+  }
 }
 class ButtonCollection {
   ArrayList<Button> buttons;
@@ -218,11 +275,8 @@ class ButtonCollection {
   void addButton(Button b) {
     buttons.add(b);
   }
-  void addButton(float x, float y) {
-    buttons.add(new Button(x,y));
-  }
   void addButton(PVector p) {
-    buttons.add(new Button(p.x,p.y));
+    buttons.add(new Button(p));
   }
   void display() {
     for(Button b : buttons) {

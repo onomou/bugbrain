@@ -1,4 +1,5 @@
-void mouseClicked() {
+void mouseClicked() {
+
   mouse.set(mouseX, mouseY);
   if( changingNeuronThreshold ) {
     oNeuron.setThreshold(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
@@ -6,8 +7,11 @@ void mouseClicked() {
   } else if( changingConnectionWeight ) {
     oConnection.setWeight(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
     changingConnectionWeight = false;
-  } else if( addNeuron.isNear(mouse) ) {
-    neurons.add(new Neuron(50, width/2, height/2));
+  } else if( addNeuronButton.isNear(mouse) ) {
+    addNeuronButton.click();
+    addNeuron();
+  } else if( interactModeButton.isNear(mouse) ) {
+    interactModeButton.click();
   }
 }
 

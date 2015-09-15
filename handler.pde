@@ -1,6 +1,10 @@
+void addNeuron() {
+  neurons.add(new Neuron(50, new PVector(width/2, height/2)));
+}
+
 boolean isNear(PVector pos, PositionalThing p) {
   float distanceSq = PVector.sub(pos, p.position).magSq();
-  if ( distanceSq < p.size*p.size + 25 ) { //TODO: should reference p's size
+  if ( distanceSq < p.size*p.size + 25 ) {
     return true;
   } else {
     return false;

@@ -2,8 +2,8 @@ class PositionalThing {//TODO: should have inherent size
   PVector position;
   color c;
   float size = 50;
-  PositionalThing(float x, float y) {
-    position = new PVector(x, y);
+  PositionalThing(PVector p) {
+    position = p.get();
     //color = new color(0,0,0);
   }
   void display() {
@@ -27,8 +27,8 @@ class Neuron extends PositionalThing {
   ArrayList<Connection> nextNeurons;
   Tracker history;
   boolean fired = false;
-  Neuron (int t, float x, float y) {
-    super(x, y);
+  Neuron (int t, PVector p) {
+    super(p);
     threshold = constrain (t, -100, 100); 
     //position = new PVector(x, y);
     nextNeurons = new ArrayList<Connection>();
@@ -88,8 +88,8 @@ class Neuron extends PositionalThing {
 }
 
 class VariableOutput extends Neuron {
-  VariableOutput (int t, float x, float y) {
-    super(t,x,y);
+  VariableOutput (int t, PVector p) {
+    super(t,p);
     history.yposition = 60;
   }
   //void display() {
@@ -131,7 +131,7 @@ class Connection extends PositionalThing {
   //PVector position;
   int id;
   Connection(Neuron o, Neuron t, float v, float w) {
-    super((o.position.x+t.position.x)/2, (o.position.y+t.position.y)/2);
+    super(new PVector((o.position.x+t.position.x)/2, (o.position.y+t.position.y)/2));
     origin = o;
     target = t;
     value = v;//maybe should constrain to -100,100?
