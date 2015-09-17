@@ -1,63 +1,3 @@
-class NeuronCollection {
-  ArrayList<Neuron> neurons;
-  NeuronCollection() {
-    neurons = new ArrayList<Neuron>();
-  }
-  void add(Neuron n) {
-    neurons.add(n);
-  }
-  void add(PVector p) {
-    if( isNear(p) ) {
-      p.add(70 + 10, 0); // TODO: change hard-coded number to refer to neuron's default size
-      this.add(p);       // recursive, keep going right until empty space
-    } else {
-      this.add(new Neuron(50, p));
-    }
-  }
-  void remove(PVector p) { // TODO: this will be problematic - need to destroy neuron and associated connections
-    for( int i = 0; i < neurons.size(); i++ ) {
-      if( neurons.get(i).isNear(p) ) {
-        //neurons.get(i).
-        neurons.remove(i);
-        break;
-      }
-    }
-  }
-  void run() {
-    for (int i = 0; i < neurons.size (); i++) {
-      //Neuron n = neurons.get(i); // TODO: is this more efficient?
-      //n.fire();                  // why does it have to do display before fire?
-      neurons.get(i).display();
-      neurons.get(i).fire();
-    }
-  }
-  void feed(int whichone, float value, float weight) {
-    if( whichone < neurons.size() ) {
-      neurons.get(whichone).feed(value, weight);
-    }
-  }
-  boolean isNear(PVector p) { // TODO: may not work because two neurons' radii could collide?
-    for( Neuron n : neurons ) {
-      if( n.isNear(p) ) {
-        return true;
-      }
-    }
-    return false;
-  }
-  /*
-  Neuron getNear(PVector p) { // BUG: does not return *nearest* neuron
-    for( Neuron n : neurons ) {
-      if( n.isNear(p) ) {
-        return n;
-      }
-    }
-    return null; // bad choice, should always call isNear() first
-  }
-  */
-  Neuron getNearest(PVector pos) {
-    return findNearest(pos, neurons);
-  }
-}
 
 //ArrayList<Neuron> neurons;
 NeuronCollection neurons;
@@ -177,7 +117,7 @@ void draw() {
             changingNeuronThreshold = true;
             //setThreshold(oNeuron);
           } else {                                              // connect to other neuron
-            oNeuron.connect(closestNeuron, 50, mouseTrace.get(mouseTrace.size()/2));
+            oNeuron.connect(closestNeuron, mouseTrace.get(mouseTrace.size()/2));
           }
         }
       } else if( objectClicked && clickedObject.equals("Connection") ) {

@@ -2,9 +2,11 @@ class PositionalThing {//TODO: should have inherent size
   PVector position;
   color c;
   float size = 50;
+  int id;
   PositionalThing(PVector p) {
     position = p.get();
     //color = new color(0,0,0);
+    id = newid();
   }
   void display() {
     
@@ -17,12 +19,15 @@ class PositionalThing {//TODO: should have inherent size
       return false;
     }
   }
+  void feed(float x, float y) { // TODO: this?
+    
+  }
 }
 
 class Neuron extends PositionalThing {
   //float c = 0.01; //learning constant
   float threshold = 100, sum = 0;
-  int id;
+  //int id;
   //PVector position;
   ArrayList<Connection> nextNeurons;
   Tracker history;
@@ -32,7 +37,7 @@ class Neuron extends PositionalThing {
     threshold = constrain (t, -100, 100); 
     //position = new PVector(x, y);
     nextNeurons = new ArrayList<Connection>();
-    id = newid();
+    //id = newid();
     history = new Tracker(nextHeight());
     size = 70;
   }
@@ -46,7 +51,11 @@ class Neuron extends PositionalThing {
       fill(255, 0, 0);
       fired = false;
     } else {
-      fill(map(sum, 0, threshold, 0, 255));
+      if( threshold == 0 ) {
+        fill(0);
+      } else {
+        fill(map(sum, 0, threshold, 0, 255));
+      }
     }
     circle(position, size);
     fill(0);
@@ -59,12 +68,12 @@ class Neuron extends PositionalThing {
     }
     history.display();
   }
-  void connect(Neuron n, float s) {
-    Connection c = new Connection(this, n, s, 100);//default connection weight 100
+  void connect(Neuron n) {
+    Connection c = new Connection(this, n, 100);//default connection weight 100
     nextNeurons.add(c);
   }
-  void connect(Neuron n, float s, PVector position) {
-    Connection c = new Connection(this, n, s, 100);//default connection weight 100
+  void connect(Neuron n, PVector position) {
+    Connection c = new Connection(this, n, 100);//default connection weight 100
     c.position = position.get();
     nextNeurons.add(c);
   }
@@ -77,11 +86,14 @@ class Neuron extends PositionalThing {
 
   float fire() {
     if (sum >= threshold) {
-      sum = 0;
       for (Connection n : nextNeurons) {
-        n.feed();
+        n.feed(100); // set connection values to 100
       }
+      sum = 0;
       fired = true;
+      for( Connection c : connections ) {
+        c.fire();
+      }
       history.feed(100);
       return 100;
     } else {
@@ -106,8 +118,8 @@ class VariableOutput extends Neuron {
     
     for (Connection n : nextNeurons) {
       n.value = s;
-        n.feed();
-      }
+      n.feed(s);
+    }
       
     history.feed(s);
     return s;
@@ -131,22 +143,25 @@ float f(float x) {
 }
 */
 class Connection extends PositionalThing {
-  Neuron origin, target;
-  float value, weight;
+  PositionalThing origin, target;
+  float value, weight, previousValue;
+  float decay;
   //PVector position;
-  int id;
-  Connection(Neuron o, Neuron t, float v, float w) {
+  //int id;
+  Connection(Neuron o, Neuron t, float w) {
     super(new PVector((o.position.x+t.position.x)/2, (o.position.y+t.position.y)/2));
     origin = o;
     target = t;
-    value = v;//maybe should constrain to -100,100?
+    value = 0;//maybe should constrain to -100,100?
     weight = constrain(w, -100, 100);
-    id = newid();
+    previousValue = 0;
+    //id = newid();
     //
     //position = new PVector((origin.position.x+target.position.x)/2, (origin.position.y+target.position.y)/2);
     //
     connections.add(this);
     size = 15;
+    decay = 1; // should always be nonnegative
   }
   void display() {
     // draw arrow from oneStart (origin) to oneEnd (mid, origin side), twoStart (mid, target side) to twoEnd (target) 
@@ -162,15 +177,86 @@ class Connection extends PositionalThing {
     
     lineArrow(oneStart, oneEnd);
     lineArrow(twoStart, twoEnd);
+    
+    if( value == previousValue && weight != 0 ) {
+      weight = weight / abs(weight) * (abs(weight) - decay);
+    }
+    
     text("v:"+value,position.x+5,position.y-6);
     text("w:"+weight,position.x+5,position.y+6);
     
     circle(position, size);
   }
-  void feed() {
-    target.feed(value, weight);
+  void feed(float value) {
+    this.previousValue = this.value;
+    this.value = value;
+    target.feed(this.value, this.weight);
+  }
+  void fire() {
+    
   }
   void setWeight(float t) {
     weight = constrain (t, -100, 100);
+  }
+}
+
+class NeuronCollection {
+  ArrayList<Neuron> neurons;
+  NeuronCollection() {
+    neurons = new ArrayList<Neuron>();
+  }
+  void add(Neuron n) {
+    neurons.add(n);
+  }
+  void add(PVector p) {
+    if( isNear(p) ) {
+      p.add(70 + 10, 0); // TODO: change hard-coded number to refer to neuron's default size
+      this.add(p);       // recursive, keep going right until empty space
+    } else {
+      this.add(new Neuron(50, p));
+    }
+  }
+  void remove(PVector p) { // TODO: this will be problematic - need to destroy neuron and associated connections
+    for( int i = 0; i < neurons.size(); i++ ) {
+      if( neurons.get(i).isNear(p) ) {
+        //neurons.get(i).
+        neurons.remove(i);
+        break;
+      }
+    }
+  }
+  void run() {
+    for (int i = 0; i < neurons.size (); i++) {
+      //Neuron n = neurons.get(i); // TODO: is this more efficient?
+      //n.fire();                  // why does it have to do display before fire?
+      neurons.get(i).display();
+      neurons.get(i).fire();
+    }
+  }
+  void feed(int whichone, float value, float weight) {
+    if( whichone < neurons.size() ) {
+      neurons.get(whichone).feed(value, weight);
+    }
+  }
+  boolean isNear(PVector p) { // TODO: may not work because two neurons' radii could collide?
+    for( Neuron n : neurons ) {
+      if( n.isNear(p) ) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /*
+  Neuron getNear(PVector p) { // BUG: does not return *nearest* neuron
+    for( Neuron n : neurons ) {
+      if( n.isNear(p) ) {
+        return n;
+      }
+    }
+    return null; // bad choice, should always call isNear() first
+  }
+  */
+  Neuron getNearest(PVector pos) {
+    return findNearest(pos, neurons);
   }
 }
