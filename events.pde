@@ -8,16 +8,16 @@ void mouseClicked() {
     } else if( changingConnectionWeight ) {
       oConnection.setWeight(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
       changingConnectionWeight = false;
-    } else if( addNeuronButton.isNear(mouse) ) {
+    }/* else if( addNeuronButton.isNear(mouse) ) {
       addNeuronButton.click();
       addNeuron();
     } else if( interactModeButton.isNear(mouse) ) {
       interactModeButton.click();
-    }
+    }*/
   } else if( mouseButton == RIGHT ) {
-    if( changingNeuronThreshold ) { // right clicked on neuron TODO: should use a more generic name
-      neurons.remove(oMouse);
-    }
+    //if( changingNeuronThreshold ) { // right clicked on neuron TODO: should use a more generic name
+      neurons.remove(mouse);
+    //}
   }
 }
 
@@ -26,10 +26,16 @@ void mouseDragged() {
   if( objectClicked ) {
     mouseTrace.add(mouse.copy());
   }
-  if( changingNeuronThreshold ) {
-    oNeuron.setThreshold(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
-  } else if( changingConnectionWeight ) {
-    oConnection.setWeight(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
+  if( mode.equals("connect") ) {
+    if( changingNeuronThreshold ) {
+      oNeuron.setThreshold(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
+    } else if( changingConnectionWeight ) {
+      oConnection.setWeight(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
+    }
+  } else if( mode.equals("move") ) {
+    if( clickedObject.equals("Neuron") ) {
+      oNeuron.move(mouse);
+    }
   }
 }
 
@@ -50,11 +56,13 @@ float magnet(float x, float start, float end) {
 void mouseReleased() {
 // TODO: will this work?
 //  mouseTrace.clear();
-  if( changingNeuronThreshold ) {
-    oNeuron.setThreshold(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
-    changingNeuronThreshold = false;
-  } else if( changingConnectionWeight ) {
-    oConnection.setWeight(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
-    changingConnectionWeight = false;
+  if( mode.equals("connect") ) {
+    if( changingNeuronThreshold ) {
+      oNeuron.setThreshold(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
+      changingNeuronThreshold = false;
+    } else if( changingConnectionWeight ) {
+      oConnection.setWeight(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
+      changingConnectionWeight = false;
+    }
   }
 }

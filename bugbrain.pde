@@ -1,4 +1,6 @@
+import controlP5.*;
 
+ControlP5 cp5;
 //ArrayList<Neuron> neurons;
 NeuronCollection neurons;
 ArrayList<Tracker> outputs;
@@ -6,12 +8,29 @@ ArrayList<Connection> connections;
 Tracker inputTrack;
 Periodic pfire = new Periodic(0.5);
 int count = 0, vposition;
+String mode = "move"; // possible values: move, connect
 //float[] inHistory, outHistory;
-Button addNeuronButton, interactModeButton; // interact mode: active = adding new connection, not active = moving neuron
+//Button addNeuronButton, interactModeButton; // interact mode: active = adding new connection, not active = moving neuron
 
 void setup() {
-  size(1000,1000);
-  frameRate(20);
+  size(2000,1500);
+  cp5 = new ControlP5(this);
+  //frameRate(20);
+  textSize(30);
+  
+  cp5.addButton("newNeuron")
+      .setValue(0)
+      .setPosition(20, 180)
+      .setSize(80, 80)
+      .setLabelVisible(false)
+      ;
+  cp5.addToggle("interactMode")
+      .setValue(0)
+      .setPosition(20, 280)
+      .setSize(80, 80)
+      .setLabelVisible(false)
+      ;
+  
   vposition = height + 20;
   //neurons = new ArrayList<Neuron>();
   neurons = new NeuronCollection();
@@ -27,8 +46,8 @@ void setup() {
   outputs.add(new Tracker(height-20));
   inputTrack = new Tracker(60);
   connections = new ArrayList<Connection>();
-  addNeuronButton = new Button(new PVector(20, 60));
-  interactModeButton = new Button(new PVector(20, 120), 2);
+  //addNeuronButton = new Button(new PVector(20, 60));
+  //interactModeButton = new Button(new PVector(20, 120), 2);
 }
 
 int nextHeight() {
@@ -77,14 +96,14 @@ void draw() {
   Buttons section
   */
   // BUG: will cause problems if buttons overlap
-  addNeuronButton.active = addNeuronButton.isNear(mouse);
-  interactModeButton.active = addNeuronButton.isNear(mouse);
+  //addNeuronButton.active = addNeuronButton.isNear(mouse);
+  //interactModeButton.active = addNeuronButton.isNear(mouse);
   
   if (mouseChanged && !disableInput && !changingNeuronThreshold && !changingConnectionWeight ) {//mouse state changed
-    if (mousePressed) {//pressed mouse
+    if (mousePressed) {//pressed mouse: get closest object, set clickedObject to Neuron or Connection
       //TODO: make this neater
       //TODO: add functions for right mouse button, including delete and move neuron
-      oMouse = mouse.get();
+      oMouse = mouse.copy();
       float neuronDistance = 10000, connectionDistance = 10000; // surely *something* will be closer than this...
       boolean nearNeuron = false, nearConnection = false; // default to not near anything
       //Neuron nearestNeuron = findNearest(mouse, neurons); // get neuron closest to mouse
@@ -108,26 +127,48 @@ void draw() {
         objectClicked = true;
       }
     } else {//released mouse
-      if( objectClicked && clickedObject.equals("Neuron") ) {
-        //Neuron closestNeuron = findNearest(mouse, neurons);
-        Neuron closestNeuron = neurons.getNearest(mouse);
-        if( closestNeuron.isNear(mouse) ) {
-          if( closestNeuron.id == oNeuron.id ) {                // mouse released on same neuron
-            // call dialog to set threshold
-            changingNeuronThreshold = true;
-            //setThreshold(oNeuron);
-          } else {                                              // connect to other neuron
-            oNeuron.connect(closestNeuron, mouseTrace.get(mouseTrace.size()/2));
+      if( objectClicked ) {
+          if( mode.equals("connect") && clickedObject.equals("Neuron") ) { // released neuron, connecting
+            //Neuron closestNeuron = findNearest(mouse, neurons);
+            Neuron closestNeuron = neurons.getNearest(mouse);
+            if( closestNeuron.isNear(mouse) ) {
+              if( closestNeuron.id == oNeuron.id ) {                // mouse released on same neuron
+                // call dialog to set threshold
+                changingNeuronThreshold = true;
+                //setThreshold(oNeuron);
+              } else {                                              // connect to other neuron
+                oNeuron.connect(closestNeuron, mouseTrace.get(mouseTrace.size()/2));
+              }
+            }
+          } else if( mode.equals("connect") && clickedObject.equals("Connection") ) {
+            if( oConnection.isNear(mouse) ) {    // mouse not dragged too far = modify connection weight
+              // call dialog to set weight
+              changingConnectionWeight = true;
+            } else {
+              oConnection.position.set(mouse);
+            }
+          } else if( mode.equals("move") && clickedObject.equals("Neuron") ) { // released neuron, connecting
+            //Neuron closestNeuron = findNearest(mouse, neurons);
+            Neuron closestNeuron = neurons.getNearest(mouse);
+            if( closestNeuron.isNear(mouse) ) {
+              if( closestNeuron.id == oNeuron.id ) {                // mouse released on same neuron
+                // call dialog to set threshold
+                changingNeuronThreshold = true;
+                //setThreshold(oNeuron);
+              } else {                                              // connect to other neuron
+                oNeuron.connect(closestNeuron, mouseTrace.get(mouseTrace.size()/2));
+              }
+            }
+          } else if( mode.equals("move") && clickedObject.equals("Connection") ) {
+            if( oConnection.isNear(mouse) ) {    // mouse not dragged too far = modify connection weight
+              // call dialog to set weight
+              changingConnectionWeight = true;
+            } else {
+              oConnection.position.set(mouse);
+            }
           }
         }
-      } else if( objectClicked && clickedObject.equals("Connection") ) {
-        if( oConnection.isNear(mouse) ) {    // mouse not dragged too far = modify connection weight
-          // call dialog to set weight
-          changingConnectionWeight = true;
-        } else {
-          oConnection.position.set(mouse);
-        }
-      }
+      //}
       objectClicked = false;
       clickedObject = "";
       mouseTrace.clear();
@@ -153,20 +194,25 @@ void draw() {
   }
   
   /* Display bar for changing threshold or weight */
+  int barHeight = 50, vPosition = 30;
   if( changingNeuronThreshold ) {
     noFill();
     stroke(0);
-    line(width/2,50,width/2,100); //TODO: change hard-coded numbers
-    rect( 50,50,width-100,50 ); //TODO: change hard-coded numbers
+    line(width/2,vPosition,width/2,barHeight); //TODO: change hard-coded numbers
+    rect( 50,vPosition,width-100,barHeight ); //TODO: change hard-coded numbers
     fill(0,100);
-    rect( 50,50,map(oNeuron.threshold,-100,100,0,width-100),50 ); //TODO: change hard-coded numbers
+    rect(width/2, vPosition, map(oNeuron.threshold, -100, 100, -(width-50)/2, (width-50)/2), barHeight); //TODO: change hard-coded numbers
   } else if( changingConnectionWeight ) {
     noFill();
     stroke(0);
-    line(width/2,50,width/2,100); //TODO: change hard-coded numbers
-    rect( 50,50,width-100,50 ); //TODO: change hard-coded numbers
+    line(width/2,vPosition,width/2,barHeight); //TODO: change hard-coded numbers
+    rect( 50,vPosition,width-100,barHeight ); //TODO: change hard-coded numbers
     fill(0,100);
-    rect( 50,50,map(oConnection.weight,-100,100,0,width-100),50 ); //TODO: change hard-coded numbers
+    rect(width/2, vPosition, map(oConnection.actualWeight, -100, 100, -(width-50)/2, (width-50)/2), barHeight); //TODO: change hard-coded numbers
+    fill(0,50);
+    rect(width/2, vPosition, map(oConnection.currentWeight, -100, 100, -(width-50)/2, (width-50)/2), barHeight); //TODO: change hard-coded numbers
+    
+    
   }
 
   /* Render mouse trace when dragging */
@@ -197,76 +243,18 @@ void draw() {
   }
   */
   neurons.run();
-  addNeuronButton.rollOver(mouse);
-  addNeuronButton.display();
-  interactModeButton.rollOver(mouse);
-  interactModeButton.display();
+  //addNeuronButton.rollOver(mouse);
+  //addNeuronButton.display();
+  //interactModeButton.rollOver(mouse);
+  //interactModeButton.display();
   text(clickedObject, 10, 15);
 }
 
-class Button extends PositionalThing {
-  boolean active = false;
-  int modes, currentMode;
-  Button(PVector p) {
-    super(p);
-    size = 50;
-    modes = 1;
-    currentMode = 0;
-  }
-  Button(PVector p, int modes) {
-    super(p);
-    size = 50;
-    this.modes = modes;
-    currentMode = 0;
-  }
-  void display() {
-    if(active) {
-      fill(100,100,0,200);
-    } else {
-      if( modes <= 1 ) {
-        fill(100,100,0,100);
-      } else {
-        fill(100,100,map(currentMode,0,modes-1,0,255),100);
-      }
-    }
-    rect(position, size, size);
-  }
-  boolean isNear(PVector p) {
-    if ( p.x > position.x && p.x < position.x + size && p.y > position.y && p.y < position.y + size ) { //TODO: should reference p's size
-      return true;
-    } else {
-      return false;
-    }
-  }
-  void rollOver(PVector p) {
-    if( this.isNear(p) ) {
-      active = true;
-    } else {
-      active = false;
-    }
-  }
-  void click() {
-    currentMode++;
-    currentMode %= modes;
-  }
+
+void newNeuron(int theValue) {
+  addNeuron();
 }
-class ButtonCollection {
-  ArrayList<Button> buttons;
-  ButtonCollection() {
-    buttons = new ArrayList<Button>();
-  }
-  void addButton(Button b) {
-    buttons.add(b);
-  }
-  void addButton(PVector p) {
-    buttons.add(new Button(p));
-  }
-  void display() {
-    for(Button b : buttons) {
-      b.display();
-    }
-  }
-  void hoverOver(PVector p) {
-    
-  }
+
+void interactMode(boolean theFlag) {
+  mode = mode.equals("move") ? "connect" : "move";
 }

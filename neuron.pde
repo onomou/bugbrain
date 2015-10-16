@@ -4,7 +4,7 @@ class PositionalThing {//TODO: should have inherent size
   float size = 50;
   int id;
   PositionalThing(PVector p) {
-    position = p.get();
+    position = p.copy();
     //color = new color(0,0,0);
     id = newid();
   }
@@ -21,6 +21,9 @@ class PositionalThing {//TODO: should have inherent size
   }
   void feed(float x, float y) { // TODO: this?
     
+  }
+  void move(PVector pos) {
+    position = pos.copy();
   }
 }
 
@@ -59,8 +62,8 @@ class Neuron extends PositionalThing {
     }
     circle(position, size);
     fill(0);
-    text("t:"+threshold, position.x+0.6*size, position.y+6);
-    text("s:"+sum, position.x+0.6*size, position.y-6);
+    text("t:"+threshold, position.x+0.6*size, position.y+16);
+    text("s:"+sum, position.x+0.6*size, position.y-16);
 
     stroke(0);
     for (Connection n : nextNeurons) {
@@ -74,7 +77,7 @@ class Neuron extends PositionalThing {
   }
   void connect(Neuron n, PVector position) {
     Connection c = new Connection(this, n, 100);//default connection weight 100
-    c.position = position.get();
+    c.position = position.copy();
     nextNeurons.add(c);
   }
   void feed(float v, float w) {
@@ -97,6 +100,9 @@ class Neuron extends PositionalThing {
       history.feed(100);
       return 100;
     } else {
+      for (Connection n : nextNeurons) {
+        n.feed(0); // set connection values to 0
+      }
       sum = 0;
       history.feed(0);
       return 0;
@@ -107,7 +113,7 @@ class Neuron extends PositionalThing {
 class VariableOutput extends Neuron {
   VariableOutput (int t, PVector p) {
     super(t,p);
-    history.yposition = 60;
+    history.yposition = 130;
   }
   //void display() {
   //  super();
@@ -117,7 +123,7 @@ class VariableOutput extends Neuron {
     sum = 0;
     
     for (Connection n : nextNeurons) {
-      n.value = s;
+      //n.value = s;
       n.feed(s);
     }
       
@@ -144,7 +150,7 @@ float f(float x) {
 */
 class Connection extends PositionalThing {
   PositionalThing origin, target;
-  float value, weight, previousValue;
+  float value, currentWeight, actualWeight, previousValue;
   float decay;
   //PVector position;
   //int id;
@@ -153,7 +159,8 @@ class Connection extends PositionalThing {
     origin = o;
     target = t;
     value = 0;//maybe should constrain to -100,100?
-    weight = constrain(w, -100, 100);
+    actualWeight = constrain(w, -100, 100);
+    currentWeight = actualWeight;
     previousValue = 0;
     //id = newid();
     //
@@ -178,25 +185,32 @@ class Connection extends PositionalThing {
     lineArrow(oneStart, oneEnd);
     lineArrow(twoStart, twoEnd);
     
-    if( value == previousValue && weight != 0 ) {
-      weight = weight / abs(weight) * (abs(weight) - decay);
+    if( value == previousValue ) {
+       if( currentWeight == 0 ) {
+         // do nothing, currentWeight == 0 already
+       } else {
+         currentWeight = currentWeight / abs(currentWeight) * (abs(currentWeight) - decay);
+       }
+    } else {
+      currentWeight = actualWeight;
     }
     
-    text("v:"+value,position.x+5,position.y-6);
-    text("w:"+weight,position.x+5,position.y+6);
+    text("v:"+value,position.x+5,position.y-16);
+    text("w:"+currentWeight,position.x+5,position.y+16);
     
     circle(position, size);
   }
   void feed(float value) {
     this.previousValue = this.value;
     this.value = value;
-    target.feed(this.value, this.weight);
+    target.feed(this.value, this.currentWeight);
   }
   void fire() {
     
   }
   void setWeight(float t) {
-    weight = constrain (t, -100, 100);
+    actualWeight = constrain (t, -100, 100);
+    currentWeight = actualWeight;
   }
 }
 
