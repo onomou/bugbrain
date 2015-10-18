@@ -8,7 +8,7 @@ ArrayList<Connection> connections;
 Tracker inputTrack;
 Periodic pfire = new Periodic(0.5);
 int count = 0, vposition;
-String mode = "move"; // possible values: move, connect
+String mode = "Move"; // possible values: move, connect
 //float[] inHistory, outHistory;
 //Button addNeuronButton, interactModeButton; // interact mode: active = adding new connection, not active = moving neuron
 
@@ -194,5 +194,5 @@ void newNeuron(int theValue) {
 
 void interactMode(boolean theFlag) {
   cp5.getController("interactMode").setLabel(theFlag ? "Connect Mode" : "Move Mode");
-  mode = mode.equals("move") ? "connect" : "move";
+  mode = mode.equals("Move") ? "Connect" : "Move";
 }

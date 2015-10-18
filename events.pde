@@ -29,13 +29,13 @@ void mouseDragged() {
   if ( objectClicked ) {
     mouseTrace.add(mouse.copy());
   }
-  if ( mode.equals("connect") ) {
+  if ( mode.equals("Connect") ) {
     if ( changingNeuronThreshold ) {
       oNeuron.setThreshold(map(magnet(mouseX, 50, width-50), 50, width-50, -100, 100)); //TODO: change hard-coded numbers
     } else if ( changingConnectionWeight ) {
       oConnection.setWeight(map(magnet(mouseX, 50, width-50), 50, width-50, -100, 100)); //TODO: change hard-coded numbers
     }
-  } else if ( mode.equals("move") ) {
+  } else if ( mode.equals("Move") ) {
     if ( clickedObject.equals("Neuron") ) {
       oNeuron.move(mouse);
     }
@@ -103,7 +103,7 @@ void mouseReleased() {
   changingConnectionWeight = false;
   changingNeuronThreshold = false;
   if ( objectClicked ) {
-    if ( mode.equals("connect") && clickedObject.equals("Neuron") ) { // released neuron, connecting
+    if ( mode.equals("Connect") && clickedObject.equals("Neuron") ) { // released neuron, connecting
       //Neuron closestNeuron = findNearest(mouse, neurons);
       Neuron closestNeuron = neurons.getNearest(mouse);
       if ( closestNeuron.isNear(mouse) ) {
@@ -115,26 +115,17 @@ void mouseReleased() {
           oNeuron.connect(closestNeuron, mouseTrace.get(mouseTrace.size()/2));
         }
       }
-    } else if ( mode.equals("connect") && clickedObject.equals("Connection") ) {
+    } else if ( mode.equals("Connect") && clickedObject.equals("Connection") ) {
       if ( oConnection.isNear(mouse) ) {    // mouse not dragged too far = modify connection weight
         // call dialog to set weight
         changingConnectionWeight = true;
       } else {
         oConnection.position.set(mouse);
       }
-    } else if ( mode.equals("move") && clickedObject.equals("Neuron") ) { // released neuron, connecting
+    } else if ( mode.equals("Move") && clickedObject.equals("Neuron") ) { // released neuron, connecting
       //Neuron closestNeuron = findNearest(mouse, neurons);
       Neuron closestNeuron = neurons.getNearest(mouse);
-      if ( closestNeuron.isNear(mouse) ) {
-        if ( closestNeuron.id == oNeuron.id ) {                // mouse released on same neuron
-          // call dialog to set threshold
-          changingNeuronThreshold = true;
-          //setThreshold(oNeuron);
-        } else {                                              // connect to other neuron
-          oNeuron.connect(closestNeuron, mouseTrace.get(mouseTrace.size()/2));
-        }
-      }
-    } else if ( mode.equals("move") && clickedObject.equals("Connection") ) {
+    } else if ( mode.equals("Move") && clickedObject.equals("Connection") ) {
       if ( oConnection.isNear(mouse) ) {    // mouse not dragged too far = modify connection weight
         // call dialog to set weight
         changingConnectionWeight = true;
@@ -145,7 +136,7 @@ void mouseReleased() {
   }
 
   /*
-  if( mode.equals("connect") ) {
+  if( mode.equals("Connect") ) {
    if( changingNeuronThreshold ) {
    oNeuron.setThreshold(map(magnet(mouseX,50,width-50),50,width-50,-100,100)); //TODO: change hard-coded numbers
    changingNeuronThreshold = false;

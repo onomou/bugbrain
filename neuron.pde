@@ -247,9 +247,9 @@ class NeuronCollection {
       neurons.get(i).fire();
     }
   }
-  void feed(int whichone, float value, float weight) {
-    if( whichone < neurons.size() ) {
-      neurons.get(whichone).feed(value, weight);
+  void feed(int whichOne, float value, float weight) {
+    if( whichOne < neurons.size() ) {
+      neurons.get(whichOne).feed(value, weight);
     }
   }
   boolean isNear(PVector p) { // TODO: may not work because two neurons' radii could collide?
