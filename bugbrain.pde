@@ -34,9 +34,7 @@ void setup() {
       .setLabel("Move Mode")
       .getCaptionLabel().setSize(30).setColor(100).alignX(0)
       ;
-  
-  println(cp5.getController("newNeuron").getCaptionLabel().getAlign());
-  
+
   vposition = height + 20;
   //neurons = new ArrayList<Neuron>();
   neurons = new NeuronCollection();
@@ -105,79 +103,12 @@ void draw() {
   //addNeuronButton.active = addNeuronButton.isNear(mouse);
   //interactModeButton.active = addNeuronButton.isNear(mouse);
   
+  //TODO: mouseChanged, pmousePressed deprecated
   if (mouseChanged && !disableInput && !changingNeuronThreshold && !changingConnectionWeight ) {//mouse state changed
     if (mousePressed) {//pressed mouse: get closest object, set clickedObject to Neuron or Connection
-      //TODO: make this neater
-      //TODO: add functions for right mouse button, including delete and move neuron
-      oMouse = mouse.copy();
-      float neuronDistance = 10000, connectionDistance = 10000; // surely *something* will be closer than this...
-      boolean nearNeuron = false, nearConnection = false; // default to not near anything
-      //Neuron nearestNeuron = findNearest(mouse, neurons); // get neuron closest to mouse
-      Neuron nearestNeuron = neurons.getNearest(mouse);
-      if( nearestNeuron != null ) { // check to make sure a neuron exists
-        neuronDistance = distSq(mouse, nearestNeuron);
-        nearNeuron = nearestNeuron.isNear(mouse);
-      }
-      Connection nearestConnection = findNearest(mouse, connections, 1); // get connection closest to mouse
-      if( nearestConnection != null ) { // check to make sure a connection exists
-        connectionDistance = distSq(mouse, nearestConnection);
-        nearConnection = nearestConnection.isNear(mouse);
-      }
-      if( nearNeuron && neuronDistance <= connectionDistance ) {             // clicked on a neuron
-        clickedObject = "Neuron";
-        oNeuron = nearestNeuron;
-        objectClicked = true;
-      } else if ( nearConnection && connectionDistance < neuronDistance ) {  // clicked on a connection
-        clickedObject = "Connection";
-        oConnection = nearestConnection;
-        objectClicked = true;
-      }
+      //handled by mousePressed()
     } else {//released mouse
-      if( objectClicked ) {
-          if( mode.equals("connect") && clickedObject.equals("Neuron") ) { // released neuron, connecting
-            //Neuron closestNeuron = findNearest(mouse, neurons);
-            Neuron closestNeuron = neurons.getNearest(mouse);
-            if( closestNeuron.isNear(mouse) ) {
-              if( closestNeuron.id == oNeuron.id ) {                // mouse released on same neuron
-                // call dialog to set threshold
-                changingNeuronThreshold = true;
-                //setThreshold(oNeuron);
-              } else {                                              // connect to other neuron
-                oNeuron.connect(closestNeuron, mouseTrace.get(mouseTrace.size()/2));
-              }
-            }
-          } else if( mode.equals("connect") && clickedObject.equals("Connection") ) {
-            if( oConnection.isNear(mouse) ) {    // mouse not dragged too far = modify connection weight
-              // call dialog to set weight
-              changingConnectionWeight = true;
-            } else {
-              oConnection.position.set(mouse);
-            }
-          } else if( mode.equals("move") && clickedObject.equals("Neuron") ) { // released neuron, connecting
-            //Neuron closestNeuron = findNearest(mouse, neurons);
-            Neuron closestNeuron = neurons.getNearest(mouse);
-            if( closestNeuron.isNear(mouse) ) {
-              if( closestNeuron.id == oNeuron.id ) {                // mouse released on same neuron
-                // call dialog to set threshold
-                changingNeuronThreshold = true;
-                //setThreshold(oNeuron);
-              } else {                                              // connect to other neuron
-                oNeuron.connect(closestNeuron, mouseTrace.get(mouseTrace.size()/2));
-              }
-            }
-          } else if( mode.equals("move") && clickedObject.equals("Connection") ) {
-            if( oConnection.isNear(mouse) ) {    // mouse not dragged too far = modify connection weight
-              // call dialog to set weight
-              changingConnectionWeight = true;
-            } else {
-              oConnection.position.set(mouse);
-            }
-          }
-        }
-      //}
-      objectClicked = false;
-      clickedObject = "";
-      mouseTrace.clear();
+      //handled by mouseClicked()
     }
     pmousePressed = mousePressed;
   }
