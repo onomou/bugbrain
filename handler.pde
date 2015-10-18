@@ -72,7 +72,7 @@ Neuron findNearest(PVector pos, ArrayList<Neuron> pthings) {
   return closest;
 }
 Connection findNearest(PVector pos, ArrayList<Connection> pthings, int t) {
-//TODO:
+// TODO:
   if( pthings.size() == 0 ) {
     return null;
   }
@@ -89,7 +89,7 @@ Connection findNearest(PVector pos, ArrayList<Connection> pthings, int t) {
 }
 /*
 PositionalThing findNearest(PVector pos, ArrayList<PositionalThing> pthings, int t) {
-//TODO:
+// TODO:
   if( pthings.size() == 0 ) {
     return null;
   }

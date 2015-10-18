@@ -27,7 +27,7 @@ class Button extends PositionalThing {
     rect(position, size, size);
   }
   boolean isNear(PVector p) {
-    if ( p.x > position.x && p.x < position.x + size && p.y > position.y && p.y < position.y + size ) { //TODO: should reference p's size
+    if ( p.x > position.x && p.x < position.x + size && p.y > position.y && p.y < position.y + size ) { // TODO: should reference p's size
       return true;
     } else {
       return false;

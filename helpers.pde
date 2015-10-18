@@ -11,18 +11,18 @@ void line(PVector p, PVector q) {
   line(p.x,p.y,q.x,q.y);
 }
 void lineArrow(PVector p, PVector q) {
-  //stroke(0);
-  //circle((p.x+q.x)/2,(p.y+q.y)/2,10);
+  // stroke(0);
+  // circle((p.x+q.x)/2,(p.y+q.y)/2,10);
   PVector l = PVector.sub(q,p);
-  //line(p,q);
+  // line(p,q);
   pushMatrix();
   translate(q.x,q.y);
   line(0,0,-l.x,-l.y);
   rotate(l.heading()+HALF_PI);
   rotate(PI/8);
-  line(0,0,0,12);//0.1*l.mag());
+  line(0,0,0,12);// 0.1*l.mag());
   rotate(-PI/4);
-  line(0,0,0,12);//0.1*l.mag());
+  line(0,0,0,12);// 0.1*l.mag());
   popMatrix();
 }
 
@@ -51,6 +51,7 @@ class Tracker {
   }
 }
 
+/*
 class Periodic {
   int interval, nextFire;
   Periodic(float i) {
@@ -68,13 +69,14 @@ class Periodic {
     }
   }
 }
+*/
 
 float squareWave(int period) {
   return floor(millis()/(1000*period))%2;
 }
 
 float sineWave(float period, float phase) {
-  return 0.5*(sin(TAU*millis()/(1000*period)+phase)+1);//0.5*(sin(mil/4000)+1);
+  return 0.5*(sin(TAU*millis()/(1000*period)+phase)+1);// 0.5*(sin(mil/4000)+1);
 }
 
 void setThreshold( Neuron n ) {
