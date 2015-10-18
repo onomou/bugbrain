@@ -12,7 +12,7 @@ String mode = "move"; // possible values: move, connect
 //float[] inHistory, outHistory;
 //Button addNeuronButton, interactModeButton; // interact mode: active = adding new connection, not active = moving neuron
 
-void setup() {
+void setup() { 
   size(2000,1500);
   cp5 = new ControlP5(this);
   //frameRate(20);
@@ -22,14 +22,20 @@ void setup() {
       .setValue(0)
       .setPosition(20, 180)
       .setSize(80, 80)
-      .setLabelVisible(false)
+      .setLabelVisible(true)
+      .setLabel("Add Neuron")
+      .getCaptionLabel().setSize(30).setColor(100).align(0,13)
       ;
   cp5.addToggle("interactMode")
       .setValue(0)
-      .setPosition(20, 280)
+      .setPosition(20, 320)
       .setSize(80, 80)
-      .setLabelVisible(false)
+      .setLabelVisible(true)
+      .setLabel("Move Mode")
+      .getCaptionLabel().setSize(30).setColor(100).alignX(0)
       ;
+  
+  println(cp5.getController("newNeuron").getCaptionLabel().getAlign());
   
   vposition = height + 20;
   //neurons = new ArrayList<Neuron>();
@@ -256,5 +262,6 @@ void newNeuron(int theValue) {
 }
 
 void interactMode(boolean theFlag) {
+  cp5.getController("interactMode").setLabel(theFlag ? "Connect Mode" : "Move Mode");
   mode = mode.equals("move") ? "connect" : "move";
 }

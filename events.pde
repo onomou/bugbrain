@@ -1,5 +1,4 @@
 void mouseClicked() {
-
   mouse.set(mouseX, mouseY);
   if( mouseButton == LEFT ) {
     if( changingNeuronThreshold ) {
