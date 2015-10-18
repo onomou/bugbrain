@@ -56,21 +56,6 @@ PositionalThing findNearest(PVector pos, ArrayList<PositionalThing> pthings) {
  return closest;
  }
  */
-Neuron findNearest(PVector pos, ArrayList<Neuron> pthings) {
-  if( pthings.size() == 0 ) {
-    return null;
-  }
-  float distance, leastDist = width;
-  Neuron closest = pthings.get(0);
-  for (Neuron p : pthings) {
-    distance = PVector.sub(pos, p.position).mag();
-    if (distance < leastDist) {
-      closest = p;
-      leastDist = distance;
-    }
-  }
-  return closest;
-}
 Connection findNearest(PVector pos, ArrayList<Connection> pthings, int t) {
 // TODO:
   if( pthings.size() == 0 ) {

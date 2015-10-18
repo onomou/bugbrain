@@ -44,7 +44,6 @@ class Tracker {
     counter = (counter+1)% history.length;
   }
   void display() {
-    stroke(0);
     for (int i = 1; i < history.length; i++) {
       line(i, yposition-25* history [i], i-1, yposition-25* history [i-1] );
     }

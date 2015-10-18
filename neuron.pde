@@ -1,11 +1,12 @@
 class PositionalThing {// TODO: should have inherent size
   PVector position;
-  color c;
+  color thisColor;
   float size = 50;
   int id;
+  boolean isHovered = false, isClicked = false;
   PositionalThing(PVector p) {
     position = p.copy();
-    // color = new color(0,0,0);
+    thisColor = color(0,0,0);
     id = newid();
   }
   void display() {
@@ -43,8 +44,10 @@ class Neuron extends PositionalThing {
     // id = newid();
     history = new Tracker(nextHeight());
     size = 70;
+    thisColor = color(0,240,0);
   }
   void display() {
+    pushStyle();
     // stroke(0);
     // for (Connection n : nextNeurons) {
     // line(this.position, n.target.position);
@@ -60,6 +63,14 @@ class Neuron extends PositionalThing {
         fill(map(sum, 0, threshold, 0, 255));
       }
     }
+    
+    if( isHovered ) {
+      strokeWeight(2);
+      fill(100,100);
+    }
+    if( isClicked ) {
+      strokeWeight(10);
+    }
     circle(position, size);
     fill(0);
     text("t:"+threshold, position.x+0.6*size, position.y+16);
@@ -70,6 +81,8 @@ class Neuron extends PositionalThing {
       n.display();
     }
     history.display();
+    isHovered = false;
+    popStyle();
   }
   void connect(Neuron n) {
     Connection c = new Connection(this, n, 100);// default connection weight 100
@@ -91,12 +104,14 @@ class Neuron extends PositionalThing {
     if (sum >= threshold) {
       for (Connection n : nextNeurons) {
         n.feed(100); // set connection values to 100
+        n.fire();
       }
       sum = 0;
       fired = true;
-      for( Connection c : connections ) {
-        c.fire();
-      }
+      // fire all connections when any neuron fires?
+      //for( Connection c : connections ) {
+        //c.fire();
+      //}
       history.feed(100);
       return 100;
     } else {
@@ -270,7 +285,31 @@ class NeuronCollection {
     return null; // bad choice, should always call isNear() first
   }
   */
+  
+  
+  Neuron findNearest(PVector pos) {
+    if( neurons.size() == 0 ) {
+      return null;
+    }
+    float distance, leastDist = width;
+    Neuron closest = neurons.get(0);
+    for (Neuron p : neurons) {
+      distance = PVector.sub(pos, p.position).mag();
+      if (distance < leastDist) {
+        closest = p;
+        leastDist = distance;
+      }
+    }
+    return closest;
+  }
+  
   Neuron getNearest(PVector pos) {
-    return findNearest(pos, neurons);
+    return findNearest(pos);
+  }
+  void rollover(PVector pos) {
+    Neuron nearestNeuron = getNearest(pos);
+    if( nearestNeuron.isNear(pos) ) {
+      nearestNeuron.isHovered = true;
+    }
   }
 }

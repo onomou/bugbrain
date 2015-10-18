@@ -3,7 +3,7 @@ import controlP5.*;
 ControlP5 cp5;
 NeuronCollection neurons;
 ArrayList<Tracker> outputs;
-ArrayList<Connection> connections;
+ArrayList<Connection> connections; // TODO: replace connections array - it is only used to find the nearest connection for move/change weight
 Tracker inputTrack;
 int count = 0, vposition;
 String mode = "Move"; // possible values: move, connect
@@ -54,7 +54,6 @@ int nextHeight() {
   return vposition;
 }
 
-boolean connecting = false, pressedNeuron = false, active = false;
 boolean objectClicked = false, disableInput = false, changingNeuronThreshold = false, changingConnectionWeight = false;
 Neuron oNeuron;
 Connection oConnection;
@@ -63,8 +62,9 @@ String clickedObject = new String();
 void draw() {
   background(255);
   mouse.set(mouseX, mouseY);
+  neurons.rollover(mouse);
 
-  /* Highlight active neuron or connection */
+  /* Highlight active neuron or connection 
   if ( objectClicked || changingNeuronThreshold || changingConnectionWeight ) {
     if ( clickedObject.equals("Neuron") || changingNeuronThreshold ) {
       pushStyle();
@@ -81,7 +81,7 @@ void draw() {
       oConnection.display();
       popStyle();
     }
-  }
+  }*/
   
   /* Display bar for changing threshold or weight */
   int barHeight = 50, vPosition = 30;
