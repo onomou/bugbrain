@@ -6,14 +6,13 @@ class PositionalThing {// TODO: should have inherent size
   boolean isHovered = false, isClicked = false;
   PositionalThing(PVector p) {
     position = p.copy();
-    thisColor = color(0,0,0);
+    thisColor = color(0, 0, 0);
     id = newid();
   }
   FloatDict getAttributes() {
     return new FloatDict();
   }
   void display() {
-    
   }
   boolean isNear(PVector pos) {
     float distanceSq = PVector.sub(pos, position).magSq();
@@ -24,12 +23,11 @@ class PositionalThing {// TODO: should have inherent size
     }
   }
   void feed(float x, float y) { // TODO: this?
-    
   }
   void move(PVector pos) {
     position = pos.copy();
   }
-  
+
   float distSq(PVector pos) {
     return PVector.sub(pos, this.position).magSq();
   }

@@ -1,20 +1,20 @@
 /*
 boolean isNear(PVector pos, PositionalThing p) {
-  float distanceSq = PVector.sub(pos, p.position).magSq();
-  if ( distanceSq < p.size*p.size + 25 ) {
-    return true;
-  } else {
-    return false;
-  }
-}
-boolean isNear(PVector p, PVector q, float tolerance) {
-  if( PVector.sub(p,q).magSq() < tolerance*tolerance ) {
-    return true;
-  } else {
-    return false;
-  }
-}
-*/
+ float distanceSq = PVector.sub(pos, p.position).magSq();
+ if ( distanceSq < p.size*p.size + 25 ) {
+ return true;
+ } else {
+ return false;
+ }
+ }
+ boolean isNear(PVector p, PVector q, float tolerance) {
+ if( PVector.sub(p,q).magSq() < tolerance*tolerance ) {
+ return true;
+ } else {
+ return false;
+ }
+ }
+ */
 /*
 boolean isNear(PVector pos, Connection c) {
  float distance = PVector.sub(pos, c.position).mag();
@@ -51,37 +51,21 @@ PositionalThing findNearest(PVector pos, ArrayList<PositionalThing> pthings) {
  return closest;
  }
  */
-Connection findNearest(PVector pos, ArrayList<Connection> pthings, int t) {
-// TODO:
-  if( pthings.size() == 0 ) {
-    return null;
-  }
-  float distance, leastDist = width;
-  Connection closest = pthings.get(0);
-  for (Connection p : pthings) {
-    distance = PVector.sub(pos, p.position).mag();
-    if (distance < leastDist) {
-      closest = p;
-      leastDist = distance;
-    }
-  }
-  return closest;
-}
 /*
 PositionalThing findNearest(PVector pos, ArrayList<PositionalThing> pthings, int t) {
-// TODO:
-  if( pthings.size() == 0 ) {
-    return null;
-  }
-  float distance, leastDist = width;
-  PositionalThing closest = pthings.get(0);
-  for (PositionalThing p : pthings) {
-    distance = PVector.sub(pos, p.position).mag();
-    if (distance < leastDist) {
-      closest = p;
-      leastDist = distance;
-    }
-  }
-  return closest;
-}
-*/
+ // TODO:
+ if( pthings.size() == 0 ) {
+ return null;
+ }
+ float distance, leastDist = width;
+ PositionalThing closest = pthings.get(0);
+ for (PositionalThing p : pthings) {
+ distance = PVector.sub(pos, p.position).mag();
+ if (distance < leastDist) {
+ closest = p;
+ leastDist = distance;
+ }
+ }
+ return closest;
+ }
+ */

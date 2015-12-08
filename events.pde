@@ -1,28 +1,28 @@
 /*
 Mouse events:
-* Connect neuron to neuron: click on neuron, drag to another one
-* Modify neuron threshold: click and release one neuron
-* Move connection midpoint: click and drag connection midpoint
-* Modify connection weight: click and release center of connection
-Mouse state changed
-  Mouse button down
-    Could be clicking on neuron, connection, or nothing
-  Mouse button up
-    Could have dragged to another neuron/connection, same one, or nothing
-Mouse state unchanged
-  Mouse button down
-    
-  Mouse button up
-    Nothing
-Changing neuron threshold
-  Set program state to "changing neuron threshold"
-  Set neuron state to receive input
-  Update slider to current threshold
-  Wait for mouse click and release
-  Read slider value
-  Write to neuron
-  Set neuron state to normal
-*/
+ * Connect neuron to neuron: click on neuron, drag to another one
+ * Modify neuron threshold: click and release one neuron
+ * Move connection midpoint: click and drag connection midpoint
+ * Modify connection weight: click and release center of connection
+ Mouse state changed
+ Mouse button down
+ Could be clicking on neuron, connection, or nothing
+ Mouse button up
+ Could have dragged to another neuron/connection, same one, or nothing
+ Mouse state unchanged
+ Mouse button down
+ 
+ Mouse button up
+ Nothing
+ Changing neuron threshold
+ Set program state to "changing neuron threshold"
+ Set neuron state to receive input
+ Update slider to current threshold
+ Wait for mouse click and release
+ Read slider value
+ Write to neuron
+ Set neuron state to normal
+ */
 
 void mouseMoved() {
   //mouse.set(mouseX, mouseY);
@@ -81,7 +81,7 @@ void mousePressed() {
     oMouse = mouse.copy();
     float distanceToNeuron = 10000, distanceToConnection = 10000; // surely *something* will be closer than this...
     boolean isNearNeuron = false, isNearConnection = false; // default to not near anything
-  
+
     Neuron nearestNeuron = neurons.getNearest(mouse); // get neuron closest to mouse
     if ( nearestNeuron != null ) { // check to make sure a neuron exists
       distanceToNeuron = nearestNeuron.distSq(mouse);
@@ -114,7 +114,7 @@ void mouseReleased() {
     oConnection.setWeight(map(magnet(mouseX, 50, width-50), 50, width-50, -100, 100)); // TODO: change hard-coded numbers
     oConnection.isClicked = false;
   }
-  
+
   changingConnectionWeight = false;
   changingNeuronThreshold = false;
   if ( objectClicked ) {
