@@ -1,7 +1,4 @@
-void addNeuron() {
-  neurons.add(new PVector(width/2, height/2));
-}
-
+/*
 boolean isNear(PVector pos, PositionalThing p) {
   float distanceSq = PVector.sub(pos, p.position).magSq();
   if ( distanceSq < p.size*p.size + 25 ) {
@@ -17,9 +14,7 @@ boolean isNear(PVector p, PVector q, float tolerance) {
     return false;
   }
 }
-float distSq(PVector pos, PositionalThing p) {
-  return PVector.sub(pos, p.position).magSq();
-}
+*/
 /*
 boolean isNear(PVector pos, Connection c) {
  float distance = PVector.sub(pos, c.position).mag();

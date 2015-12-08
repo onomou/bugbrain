@@ -26,24 +26,36 @@ void lineArrow(PVector p, PVector q) {
   popMatrix();
 }
 
+boolean isEqual(PVector p, PVector q) {
+  if( p.x == q.x && p.y == q.y ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 int globalid = 0;
 int newid() {
   return globalid++;
 }
 
+IntList outputs = new IntList();
+IntList inputs = new IntList();
+
 class Tracker {
   float[] history;
-  int counter, yposition;
-  Tracker(int y) {
-    history = new float[width];
+  int yposition, id;
+  Tracker(int y, int id) {
+    history = new float[globalTrackerLength];
     yposition = y;
+    this.id = id;
   }
 
   void feed(float v) {
-    history[counter] = constrain(v, -100, 100)/100;
-    counter = (counter+1)% history.length;
+    history[globalTrackerIndex] = constrain(v, -100, 100)/100;
   }
   void display() {
+    text(id, 10, yposition + (textAscent()+textDescent())/2);
     for (int i = 1; i < history.length; i++) {
       line(i, yposition-25* history [i], i-1, yposition-25* history [i-1] );
     }
@@ -68,15 +80,8 @@ class Periodic {
     }
   }
 }
-*/
 
-float squareWave(int period) {
-  return floor(millis()/(1000*period))%2;
-}
 
-float sineWave(float period, float phase) {
-  return 0.5*(sin(TAU*millis()/(1000*period)+phase)+1);// 0.5*(sin(mil/4000)+1);
-}
 
 void setThreshold( Neuron n ) {
   disableInput = true;
@@ -88,3 +93,5 @@ void setThreshold( Neuron n ) {
   rect(100,100,500,500);
   text("Please type your value and press enter",300,150);
 }
+
+*/

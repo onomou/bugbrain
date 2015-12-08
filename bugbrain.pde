@@ -2,11 +2,9 @@ import controlP5.*;
 
 ControlP5 cp5;
 NeuronCollection neurons;
-ArrayList<Tracker> outputs;
 ArrayList<Connection> connections; // TODO: replace connections array - it is only used to find the nearest connection for move/change weight
-Tracker inputTrack;
-int count = 0, vposition;
 String mode = "Move"; // possible values: move, connect
+int globalTrackerLength, globalTrackerIndex = 0;
 
 void setup() { 
   size(2000,1500);
@@ -32,56 +30,48 @@ void setup() {
       ;
 
   vposition = height + 20;
+  trackerBaseline = height - 20;
+  globalTrackerLength = width;
   // neurons = new ArrayList<Neuron>();
   neurons = new NeuronCollection();
-  neurons.add(new Neuron(50, new PVector(width/3, height/2)));
-  neurons.add(new Neuron(100,new PVector(width/2, height/2)));
-  neurons.add(new Neuron(50, new PVector(width/2, height/4)));
-  neurons.add(new Neuron(100,new PVector(width/4, 3*height/4)));
   neurons.add(new VariableOutput(100, new PVector(width/4, height/4)));
-  outputs = new ArrayList<Tracker>();
-  outputs.add(new Tracker(height-140));
-  outputs.add(new Tracker(height-100));
-  outputs.add(new Tracker(height-60));
-  outputs.add(new Tracker(height-20));
-  inputTrack = new Tracker(60);
+  neurons.add(new VariableOutput(100, new PVector(3*width/4, height/4)));
+  neurons.add(new Neuron(50, new PVector(width/3, height/2), neurons.getNextTrackerPosition()));
+  neurons.add(new Neuron(100,new PVector(width/2, height/2), neurons.getNextTrackerPosition()));
+  neurons.add(new Neuron(50, new PVector(width/2, height/4), neurons.getNextTrackerPosition()));
+  neurons.add(new Neuron(100,new PVector(width/4, 3*height/4), neurons.getNextTrackerPosition()));
   connections = new ArrayList<Connection>();
+  
+  //neurons.neurons.get(1).attachInput();//new Input("sineWave",2,1));
+  //ArrayList<Input> ipts = new ArrayList<Input>();
+  //ipts.add(ipt);
+  //for(Input i : ipts) {
+  //  i.run();
+  //}
 }
 
+Input ipt = new Input("sineWave", 2, 1);
+
+int trackerBaseline;
+int vposition;
 // TODO: Fix this right
 int nextHeight() {
   vposition -= 40;
   return vposition;
 }
 
+
 boolean objectClicked = false, disableInput = false, changingNeuronThreshold = false, changingConnectionWeight = false;
 Neuron oNeuron;
 Connection oConnection;
 PVector mouse = new PVector(), oMouse;
-String clickedObject = new String();
+String clickedObject = new String(), hoveredObject = new String();
 void draw() {
   background(255);
   mouse.set(mouseX, mouseY);
-  neurons.rollover(mouse);
-
-  /* Highlight active neuron or connection 
-  if ( objectClicked || changingNeuronThreshold || changingConnectionWeight ) {
-    if ( clickedObject.equals("Neuron") || changingNeuronThreshold ) {
-      pushStyle();
-      strokeWeight(15);
-      stroke(0, 0, 255);
-      oNeuron.display();
-      popStyle();
-      stroke(0);
-      line(oNeuron.position.x, oNeuron.position.y, mouseX, mouseY);
-    } else if( clickedObject.equals("Connection") || changingConnectionWeight ) {
-      pushStyle();
-      strokeWeight(10);
-      stroke(255, 0, 0);
-      oConnection.display();
-      popStyle();
-    }
-  }*/
+  if( !changingNeuronThreshold && !changingConnectionWeight ) {
+    neurons.rollOver(mouse);
+  }
   
   /* Display bar for changing threshold or weight */
   int barHeight = 50, vPosition = 30;
@@ -119,14 +109,21 @@ void draw() {
   
   /* Run main stuff */
   float v = sineWave(2,0);
-  neurons.feed(4,100*v,100);
+  neurons.feed(0,100*v,100);
   neurons.run();
-  text(clickedObject, 10, 15);
+  text(hoveredObject, 10, 35);
+  hoveredObject = "";
+  
+  if( globalTrackerIndex >= globalTrackerLength-1 ) {
+    globalTrackerIndex = 0;
+  } else {
+    globalTrackerIndex++;
+  }
 }
 
 /* ControlP5 button handlers */
 void newNeuron(int theValue) {
-  addNeuron();
+  neurons.add(new PVector(width/2, height/2));
 }
 void interactMode(boolean theFlag) {
   cp5.getController("interactMode").setLabel(theFlag ? "Connect Mode" : "Move Mode");

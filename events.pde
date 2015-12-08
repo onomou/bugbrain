@@ -84,12 +84,12 @@ void mousePressed() {
   
     Neuron nearestNeuron = neurons.getNearest(mouse); // get neuron closest to mouse
     if ( nearestNeuron != null ) { // check to make sure a neuron exists
-      distanceToNeuron = distSq(mouse, nearestNeuron);
+      distanceToNeuron = nearestNeuron.distSq(mouse);
       isNearNeuron = nearestNeuron.isNear(mouse);
     }
     Connection nearestConnection = findNearest(mouse, connections, 1); // get connection closest to mouse
     if ( nearestConnection != null ) { // check to make sure a connection exists
-      distanceToConnection = distSq(mouse, nearestConnection);
+      distanceToConnection = nearestConnection.distSq(mouse);
       isNearConnection = nearestConnection.isNear(mouse);
     }
     if ( isNearNeuron && distanceToNeuron <= distanceToConnection ) {            // clicked on a neuron
@@ -109,14 +109,16 @@ void mousePressed() {
 void mouseReleased() {
   if ( changingNeuronThreshold ) {
     oNeuron.setThreshold(map(magnet(mouseX, 50, width-50), 50, width-50, -100, 100)); // TODO: change hard-coded numbers
+    oNeuron.isClicked = false;
   } else if ( changingConnectionWeight ) {
     oConnection.setWeight(map(magnet(mouseX, 50, width-50), 50, width-50, -100, 100)); // TODO: change hard-coded numbers
+    oConnection.isClicked = false;
   }
   
   changingConnectionWeight = false;
   changingNeuronThreshold = false;
-  oNeuron.isClicked = false;
   if ( objectClicked ) {
+    oNeuron.isClicked = false;
     if ( mode.equals("Connect") && clickedObject.equals("Neuron") ) { // released neuron, connecting
       // Neuron closestNeuron = findNearest(mouse, neurons);
       Neuron closestNeuron = neurons.getNearest(mouse);
