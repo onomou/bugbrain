@@ -65,7 +65,7 @@ class Connection extends PositionalThing {
   void fire() {
   }
   void setWeight(float t) {
-    actualWeight = constrain (t, -100, 100);
+    actualWeight = (int)constrain (t, -100, 100);
     currentWeight = actualWeight;
   }
 }

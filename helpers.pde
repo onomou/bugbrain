@@ -36,7 +36,8 @@ boolean isEqual(PVector p, PVector q) {
 
 int globalid = 0;
 int newid() {
-  return globalid++;
+  globalid++;
+  return globalid;
 }
 
 IntList outputs = new IntList();

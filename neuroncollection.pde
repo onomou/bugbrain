@@ -7,15 +7,28 @@ class NeuronCollection {
     rememberedPosition = new PVector();
   }
   void add(Neuron n) {
-    neurons.add(n);
+    if ( isNear(n.position) ) {
+      n.position.add(70 + 140, 0);
+      this.add(n);
+    } else {
+      neurons.add(n);
+    }
   }
   void add(PVector p) {
     if ( isNear(p) ) {
-      p.add(70 + 10, 0); // TODO: change hard-coded number to refer to neuron's default size
+      p.add(70 + 140, 0); // TODO: change hard-coded number to refer to neuron's default size
       this.add(p);       // recursive, keep going right until empty space
     } else {
-      this.add(new Neuron(50, p, getNextTrackerPosition()));
+      this.add(new Neuron(50, p, ""));
     }
+  }
+  void add() {
+    PVector p = new PVector(width/8, height/2);
+    this.add(p);
+  }
+  void add(String type) {
+    PVector p = new PVector(width/8, height/2);
+    this.add(new Neuron(100, p, type));
   }
   int getNextTrackerPosition() {
     return trackerBaseline - 40 * neurons.size();
@@ -31,10 +44,6 @@ class NeuronCollection {
   }
   void run() {
     // activate, display, fire, advance
-    for (int i = 0; i < neurons.size (); i++) {
-      // Neuron n = neurons.get(i); // TODO: is this more efficient?
-      neurons.get(i).activate();
-    }
     for ( Neuron n : neurons ) n.activate();
     for ( Neuron n : neurons ) n.display();
     for ( Neuron n : neurons ) n.fire();
@@ -46,11 +55,16 @@ class NeuronCollection {
     }
   }
 
-  //void attachInput(int whichOne, String type, float period, float phase) {
-  //  if( whichOne < neurons.size() ) {
-  //    neurons.get(whichOne).attachInput(new Input(type, period, phase));
-  //  }
-  //}
+  void attachInput(int whichOne) {
+   if( whichOne < neurons.size() ) {
+     neurons.get(whichOne).attachInput();
+   }
+  }
+  void attachInput(int whichOne, String type, float period, float phase) {
+   if( whichOne < neurons.size() ) {
+     neurons.get(whichOne).attachInput(new Input(type, period, phase));
+   }
+  }
 
 
   boolean isNear(PVector p) { // TODO: may be unpredictable because two neurons' radii could collide?

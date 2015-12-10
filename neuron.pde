@@ -1,27 +1,37 @@
 class Neuron extends PositionalThing {
   // float c = 0.01; // learning constant
   float threshold = 100, sum = 0, nextSum = 0;
+  String type;
   boolean willFire = false;
+  float fireValue = 0;
   // int id;
   // PVector position;
   ArrayList<Connection> nextNeurons;
   ArrayList<Input> attachedInputs;
   Tracker history;
   boolean fired = false;
-  Neuron (int t, PVector p, int trackerPosition) {
+  Neuron (int t, PVector p, String typeIn) {
     super(p);
     threshold = constrain (t, -100, 100); 
     // position = new PVector(x, y);
     nextNeurons = new ArrayList<Connection>();
     attachedInputs = new ArrayList<Input>();
-    attachedInputs.add(ipt);
+    //attachedInputs.add(ipt);
     // id = newid();
-    size = 70;
-    thisColor = color(0, 240, 0);
-    outputs.append(this.id); // TODO: fix this to be contained internally
     history = new Tracker(trackerBaseline - 40 * outputs.size(), this.id);
+    if (typeIn.equals("linear")) {
+      type = "linear";
+      inputs.append(this.id); // TODO: fix this to be contained internally
+      history.yposition = 40 * inputs.size();
+      thisColor = color(180, 0, 0);
+    } else {
+      type = "step";
+      outputs.append(this.id); // TODO: fix this to be contained internally
+      thisColor = color(0, 240, 0);
+    }
+    size = 70;
 
-    attachInput();
+    //attachInput();
   }
   FloatDict getAttributes() {
     FloatDict attributes = new FloatDict();
@@ -58,8 +68,8 @@ class Neuron extends PositionalThing {
     fill(fillColor);
     circle(position, size);
     fill(0);
-    text("s:"+sum, position.x+0.6*size, position.y-16);
-    text("t:"+(threshold), position.x+0.6*size, position.y+16);
+    text("s:"+(int)sum, position.x+0.6*size, position.y-16);
+    text("t:"+(int)threshold, position.x+0.6*size, position.y+16);
 
     textAlign(CENTER, CENTER);
     stroke(0);
@@ -83,16 +93,8 @@ class Neuron extends PositionalThing {
     nextNeurons.add(c);
   }
   void attachInput() {
-    //println("Attaching input");
-    Input ipt = new Input("sineWave", 2, 1);
-    attachedInputs.add(ipt);
-    println("Attached one input");
-    ipt.run();
-    attachedInputs.add(new Input("sineWave", 2, 1));
-    for ( Input i : attachedInputs ) {
-      i.run();
-    }
-    println("Done attaching inputs, size " + attachedInputs.size());
+    attachInput(new Input("sineWave", 2, 1));
+    //attachedInputs.add(new Input("sineWave", 2, 1));
   }
   void attachInput(Input i) {
     attachedInputs.add(i);
@@ -103,80 +105,61 @@ class Neuron extends PositionalThing {
   void setThreshold(float t) {
     threshold = (int)constrain (t, -100, 100);
   }
-  void run() {
-    /*
-        Sum input values
-     Display sum of inputs
-     Process activation function based on sum (clear sum)
-     Display activation result
-     Send result to attached connections for next round
-     
-     
-     Compare inputs to activation function: activate()
-     Display: display()
-     Process activation: fire()
-     Send as inputs for next round: feed()
-     Move all inputs to be processed: advance()
-     */
-  }
-  void advance() {
-    sum = nextSum;
-    nextSum = 0;
-  }
   void activate() {
-    if (sum >= threshold) { // the activation function, TODO: add other activation types, like sigmoid, etc.
+    // TODO: add other activation types, like sigmoid, etc.
+    if( type.equals("linear") ) {
       willFire = true;
+      fireValue = sum;
+    } else if( type.equals("step") ) {
+      if (sum >= threshold) { // the activation function
+        willFire = true;
+        fireValue = 100;
+      }
     }
   }
-  float fire() {
-    //println(attachedInputs.size());
-    //for( Input i : attachedInputs ) {
-    //sum += i.run();
-    //println("Firing");
-    //println(i.run());
-    //}
+  void fire() {
     if (willFire) {
       for (Connection n : nextNeurons) {
-        n.feed(100); // set connection values to 100
-        //n.fire();
+        n.feed(fireValue); // send current value to connected neurons
       }
-      sum = 0;
       fired = true;
-      willFire = false;
-      history.feed(100);
-      return 100;
+      history.feed(fireValue);
     } else {
       for (Connection n : nextNeurons) {
         n.feed(0); // set connection values to 0
       }
-      sum = 0;
       history.feed(0);
-      return 0;
     }
+    sum = 0;
+    willFire = false;
+  }
+  void advance() {
+    // add attached inputs
+    for ( Input i : attachedInputs ) {
+      nextSum += i.run();
+    }
+    sum = nextSum;
+    nextSum = 0;
   }
 }
 
 class VariableOutput extends Neuron {
   VariableOutput (int t, PVector p) {
-    super(t, p, 40);
-    outputs.remove(outputs.size()-1); // TODO: fix this to be contained internally
-    inputs.append(this.id); // TODO: fix this to be contained internally
-    history.yposition = 40 * inputs.size();
-    thisColor = color(180, 0, 0);
+    super(t, p,"linear");
+    //outputs.remove(outputs.size()-1); // TODO: fix this to be contained internally
+    //inputs.append(this.id); // TODO: fix this to be contained internally
+    //history.yposition = 40 * inputs.size();
+    //thisColor = color(180, 0, 0);
   }
   // void display() {
   // super();
   // }
-  float fire() {
-    float s = sum;
-    sum = 0;
+  //void fire() {
+  //  for (Connection n : nextNeurons) {
+  //    n.feed(sum);
+  //  }
 
-    for (Connection n : nextNeurons) {
-      // n.value = s;
-      n.feed(s);
-    }
-
-    history.feed(s);
-    return s;
-  }
+  //  history.feed(sum);
+  //  sum = 0;
+  //}
 }

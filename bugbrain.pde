@@ -5,6 +5,7 @@ NeuronCollection neurons;
 ArrayList<Connection> connections; // TODO: replace connections array - it is only used to find the nearest connection for move/change weight
 String mode = "Move"; // possible values: move, connect
 int globalTrackerLength, globalTrackerIndex = 0;
+int time = 0;
 
 void setup() { 
   size(2000, 1500);
@@ -13,7 +14,6 @@ void setup() {
   textSize(30);
 
   cp5.addButton("newNeuron")
-    .setValue(0)
     .setPosition(20, 180)
     .setSize(80, 80)
     .setLabelVisible(true)
@@ -34,23 +34,23 @@ void setup() {
   globalTrackerLength = width;
   // neurons = new ArrayList<Neuron>();
   neurons = new NeuronCollection();
-  neurons.add(new VariableOutput(100, new PVector(width/4, height/4)));
-  neurons.add(new VariableOutput(100, new PVector(3*width/4, height/4)));
-  neurons.add(new Neuron(50, new PVector(width/3, height/2), neurons.getNextTrackerPosition()));
-  neurons.add(new Neuron(100, new PVector(width/2, height/2), neurons.getNextTrackerPosition()));
-  neurons.add(new Neuron(50, new PVector(width/2, height/4), neurons.getNextTrackerPosition()));
-  neurons.add(new Neuron(100, new PVector(width/4, 3*height/4), neurons.getNextTrackerPosition()));
+  neurons.add(new Neuron(100, new PVector(width/4, height/4), "linear"));
+  neurons.add(new Neuron(100, new PVector(width/4, height/4), "linear"));
+  neurons.add(new Neuron(100, new PVector(width/4, height/4), "linear"));
+  neurons.add("linear");
+  neurons.add();
+  neurons.add();
+  neurons.add();
+  neurons.add();
   connections = new ArrayList<Connection>();
 
-  //neurons.neurons.get(1).attachInput();//new Input("sineWave",2,1));
-  //ArrayList<Input> ipts = new ArrayList<Input>();
-  //ipts.add(ipt);
-  //for(Input i : ipts) {
-  //  i.run();
-  //}
+  neurons.attachInput(0,"sineWave",3,PI);
+  neurons.attachInput(1,"sineWave",3,HALF_PI);
+  neurons.attachInput(2);
+  neurons.attachInput(3,"linear",1,0);
 }
 
-Input ipt = new Input("sineWave", 2, 1);
+//Input ipt = new Input("sineWave", 2, 1);
 
 int trackerBaseline;
 int vposition;
@@ -108,8 +108,9 @@ void draw() {
   stroke(0);
 
   /* Run main stuff */
-  float v = sineWave(2, 0);
-  neurons.feed(0, 100*v, 100);
+  time = millis();
+//  float v = sineWave(2, 0);
+//  neurons.feed(0, 100*v, 100);
   neurons.run();
   text(hoveredObject, 10, 35);
   hoveredObject = "";
