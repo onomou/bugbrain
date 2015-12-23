@@ -1,11 +1,30 @@
+/*
+Description:
+  
+
+
+To Do:
+  Delete neurons
+  Delete connections
+  Undo/Redo
+  Connection display/trail
+
+
+*/
+
 import controlP5.*;
 
 ControlP5 cp5;
 NeuronCollection neurons;
 ArrayList<Connection> connections; // TODO: replace connections array - it is only used to find the nearest connection for move/change weight
-String mode = "Move"; // possible values: move, connect
+Neuron oNeuron;
+Connection oConnection;
+String mode = "Move", clickedObject = new String(), hoveredObject = new String(); // mode possible values: move, connect
 int globalTrackerLength, globalTrackerIndex = 0;
-int time = 0;
+int time = 0, trackerBaseline, vposition;
+int nextHeight() { return vposition-=40; } // TODO: Fix this right
+boolean objectClicked = false, disableInput = false, changingNeuronThreshold = false, changingConnectionWeight = false;
+PVector mouse = new PVector(), oMouse = new PVector();
 
 void setup() { 
   size(2000, 1500);
@@ -29,10 +48,10 @@ void setup() {
     .getCaptionLabel().setSize(30).setColor(100).alignX(0)
     ;
 
-  vposition = height + 20;
-  trackerBaseline = height - 20;
+  vposition = height + 40;
+  trackerBaseline = height - 40;
   globalTrackerLength = width;
-  // neurons = new ArrayList<Neuron>();
+  
   neurons = new NeuronCollection();
   neurons.add(new Neuron(100, new PVector(width/4, height/4), "linear"));
   neurons.add(new Neuron(100, new PVector(width/4, height/4), "linear"));
@@ -50,22 +69,6 @@ void setup() {
   neurons.attachInput(3,"linear",1,0);
 }
 
-//Input ipt = new Input("sineWave", 2, 1);
-
-int trackerBaseline;
-int vposition;
-// TODO: Fix this right
-int nextHeight() {
-  vposition -= 40;
-  return vposition;
-}
-
-
-boolean objectClicked = false, disableInput = false, changingNeuronThreshold = false, changingConnectionWeight = false;
-Neuron oNeuron;
-Connection oConnection;
-PVector mouse = new PVector(), oMouse;
-String clickedObject = new String(), hoveredObject = new String();
 void draw() {
   background(255);
   mouse.set(mouseX, mouseY);

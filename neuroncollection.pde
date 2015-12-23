@@ -30,6 +30,10 @@ class NeuronCollection {
     PVector p = new PVector(width/8, height/2);
     this.add(new Neuron(100, p, type));
   }
+  void addInput(String type) {
+    this.add(type);
+    //neurons.end();
+  }
   int getNextTrackerPosition() {
     return trackerBaseline - 40 * neurons.size();
   }
